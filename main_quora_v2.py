@@ -10,12 +10,14 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn import tree
 import glob, os
+import pickle
 
 
 tokenize_train = False
 tokenize_test = True
-build_features = True
+build_train_features = True
 build_model = True
+build_test_features = True
 execute_model = True
 
 def tokenize(df, name):
@@ -51,7 +53,7 @@ def get_features_from_csv(directory_name):
         for column in df_temp_features:
             df_features_all[column] = df_temp_features[column]
             print('added feature ' + column)
-            
+    os.chdir('..')        
     return df_features_all
 
 if build_features:
@@ -79,13 +81,39 @@ if build_model:
     
     clf = tree.DecisionTreeClassifier(max_depth = 10)
     #clf = RandomForestClassifier(n_estimators=3, max_depth=5)
-    
-    
+      
     scores = cross_val_score(clf, X, y, cv=5, scoring = 'accuracy') #scoring = 'neg_log_loss'
+   
+    print(scores)
+       
+    clf.fit(X,y)
+    
+    # save the model to disk
+    modelfilename = 'finalized_model.pkl'
+    pickle.dump(clf, open(modelfilename, 'wb'))
+ 
 
     
-    print(scores)
+if build_test_features:
+    if tokenize_test:
+        df_test = pd.read_csv('data/test.csv')
     
+        df_test = df_test.fillna('noentry')
+        df_test = tokenize(df_test, 'test')
+    else:
+        # read from csv already tokenized
+        df_test = pd.read_csv('data/test_tokenized.csv', encoding = "ISO-8859-1")
+
+df_test = df_test[0:100]
+df_test_features = create_features(df_test)
     
+if execute_model:
+
+    clf = pickle.load(open(modelfilename, 'rb'))
+    df_test_features = get_features_from_csv('features_test')
+
+    X = df_test_features.values
+    probs = clf.predict_proba(X)
+    print(probs)
+      
     
-    clf.fit(X,y) 
