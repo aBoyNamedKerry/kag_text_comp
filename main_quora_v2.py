@@ -29,7 +29,7 @@ def feature_word_overlap(df):
     df_return = pd.DataFrame()
     shared_words = df.apply(lambda row:len(set(row['q1_tokens']) & set(row['q2_tokens']))/len(set(row['q1_tokens'] + row['q2_tokens'])), axis=1)
     df_return['shared_words'] = shared_words
-    df_return.to_csv('features_train/feature_word_overlap.csv')
+    df_return.to_csv('features_train/feature_word_overlap.csv', index=False)
     print ('written feature_word_overlap to csv')
     return True
 
@@ -45,8 +45,9 @@ def get_features_from_csv(directory_name):
     df_features_all = pd.DataFrame()
     os.chdir(directory_name)
     for file in glob.glob("*.csv"):
-        print(file)
+ 
         df_temp_features = pd.read_csv(file)
+        print ('reading file ' + directory_name + file + ' from csv')
         for column in df_temp_features:
             df_features_all[column] = df_temp_features[column]
             print('added feature ' + column)
@@ -73,8 +74,8 @@ if build_model:
     X = df_train_features.values
     y = df_train['is_duplicate'].values
     
-    print(X)
-    print(y)
+    #print(X)
+    #print(y)
     
     clf = tree.DecisionTreeClassifier(max_depth = 10)
     #clf = RandomForestClassifier(n_estimators=3, max_depth=5)
