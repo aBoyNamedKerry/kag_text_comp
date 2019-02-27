@@ -78,7 +78,7 @@ train_tokenized %<>%
 
 ## Write the data out without id column as this is not used by Python algorithm
 train_tokenized %>% select(same_sentiment, sentiment_difference) %>%
-  write.csv(., "./feature_train/sentiment_feature_selection.csv",
+  write.csv(., "./features_train/sentiment_feature_selection.csv",
             row.names = FALSE)
 
 
