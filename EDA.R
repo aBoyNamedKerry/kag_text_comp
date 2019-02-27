@@ -76,6 +76,10 @@ train_tokenized %<>%
          sentiment_difference = abs(sentiment_q1 - sentiment_q2))
 
 
+## Write the data out 
+train_tokenized %>% 
+
+
 ## Testing code -----------------
 test <- train_tokenized_1  %>% left_join(get_sentiments("nrc"),
                                                           by = c("words_1" = "word")) %>%
