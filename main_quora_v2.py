@@ -13,7 +13,8 @@ from sklearn.model_selection import cross_val_score
 from sklearn import tree
 import glob, os
 import pickle
-
+import re, math
+from collections import Counter
 
 tokenize_train = False
 tokenize_test = True
@@ -57,6 +58,34 @@ def feature_levenshtein_distance(df):
     df_return['diff_num_words'] = df.apply(lambda x: jellyfish.levenshtein_distance(''.join(x['q1_tokens']),''.join(x['q1_tokens'])), axis=1)
     df_return.to_csv('features_train/feature_levenshtein_distance.csv', index=False)
 
+
+
+
+
+def _naive_cosine(vec1, vec2):
+    # From https://stackoverflow.com/questions/15173225/calculate-cosine-similarity-given-2-sentence-strings
+    vec1 = Counter(vec1)
+    vec2 = Counter(vec2)
+    intersection = set(vec1.keys()) & set(vec2.keys())
+    numerator = sum([vec1[x] * vec2[x] for x in intersection])
+
+    sum1 = sum([vec1[x]**2 for x in vec1.keys()])
+    sum2 = sum([vec2[x]**2 for x in vec2.keys()])
+    denominator = math.sqrt(sum1) * math.sqrt(sum2)
+
+    if not denominator:
+        return 0.0
+    else:
+        return float(numerator) / denominator
+
+
+
+def feature_cosine_similarity(df):
+    # https://en.wikipedia.org/wiki/Cosine_similarity
+    # https://www.oreilly.com/learning/how-do-i-compare-document-similarity-using-python
+    df_return = pd.DataFrame() 
+    df_return['cosine_similarity'] = df.apply(lambda x: _naive_cosine(x['q1_tokens'], x['q2_tokens']), axis=1)
+    def_return.to_csv('features_train/feature_cosine_similarity.csv', index=False)
 
 def create_features(df_input):
     # df_input should be training or test data whihc has been tokenized and has columns q1_tokens and q2_tokens
