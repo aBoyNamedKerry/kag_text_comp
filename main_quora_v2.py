@@ -6,6 +6,8 @@ Created on Mon Feb 18 19:34:03 2019
 """
 import nltk
 import pandas as pd
+import numpy as np
+import jellyfish
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn import tree
@@ -35,10 +37,29 @@ def feature_word_overlap(df):
     print ('written feature_word_overlap to csv')
     return True
 
+def feature_number_of_words(df):
+    df_return = pd.DataFrame()
+    df_return['diff_num_words'] = df.apply(lambda x: len(x['q1_tokens']) - len(x['q2_tokens']), axis=1)
+    df_return.to_csv('features_train/feature_number_of_words.csv', index=False)
+
+def feature_average_token_length(df):
+    df_return = pd.DataFrame()
+    df_return['diff_num_words'] = df.apply(lambda x: np.mean([len(word) for word in x['q1_tokens']]) - np.mean([len(word) for word in x['q2_tokens']]), axis=1)
+    df_return.to_csv('features_train/feature_average_token_length.csv', index=False)
+
+def feature_levenshtein_distance(df):
+    # Packages considered: 
+    # https://pypi.org/project/jellyfish/ - selected as updated most recently and 1k Github stars
+    # https://pypi.org/project/editdistance/
+    # https://pypi.org/project/python-Levenshtein/0.12.0/
+
+    df_return = pd.DataFrame()
+    df_return['diff_num_words'] = df.apply(lambda x: jellyfish.levenshtein_distance(''.join(x['q1_tokens']),''.join(x['q1_tokens'])), axis=1)
+    df_return.to_csv('features_train/feature_levenshtein_distance.csv', index=False)
+
+
 def create_features(df_input):
     # df_input should be training or test data whihc has been tokenized and has columns q1_tokens and q2_tokens
-   
-    
     feature_word_overlap(df_input)
     return True
 
@@ -93,27 +114,28 @@ if build_model:
     pickle.dump(clf, open(modelfilename, 'wb'))
  
 
-    
-if build_test_features:
-    if tokenize_test:
-        df_test = pd.read_csv('data/test.csv')
-    
-        df_test = df_test.fillna('noentry')
-        df_test = tokenize(df_test, 'test')
-    else:
-        # read from csv already tokenized
-        df_test = pd.read_csv('data/test_tokenized.csv', encoding = "ISO-8859-1")
+def main(): 
+    if build_test_features:
+        if tokenize_test:
+            df_test = pd.read_csv('data/test.csv')
+        
+            df_test = df_test.fillna('noentry')
+            df_test = tokenize(df_test, 'test')
+        else:
+            # read from csv already tokenized
+            df_test = pd.read_csv('data/test_tokenized.csv', encoding = "ISO-8859-1")
 
-df_test = df_test[0:100]
-df_test_features = create_features(df_test)
-    
-if execute_model:
+    df_test = df_test[0:100]
+    df_test_features = create_features(df_test)
+        
+    if execute_model:
 
-    clf = pickle.load(open(modelfilename, 'rb'))
-    df_test_features = get_features_from_csv('features_test')
+        clf = pickle.load(open(modelfilename, 'rb'))
+        df_test_features = get_features_from_csv('features_test')
 
-    X = df_test_features.values
-    probs = clf.predict_proba(X)
-    print(probs)
-      
-    
+        X = df_test_features.values
+        probs = clf.predict_proba(X)
+        print(probs)
+          
+if __name__=='__main__':
+    main()
