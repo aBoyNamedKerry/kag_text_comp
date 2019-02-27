@@ -47,7 +47,33 @@ tokenized_sentiment2 <- train_tokenized_2  %>% inner_join(get_sentiments("bing")
                                     ifelse(sentiment == 0, "neutral", "negative")))
 
 
-#join the data 
+## join the data --------------
+
+#join first sentiment
+train_tokenized <- tokenized_sentiment1 %>%
+  select(X, sentiment_q1 = sentiment, overall_sentiment_q1 = overall_sentiment) %>%
+  left_join(train_tokenized,.)
+
+#join second
+train_tokenized <- tokenized_sentiment2 %>%
+  select(X, sentiment_q2 = sentiment, overall_sentiment_q2 = overall_sentiment) %>%
+  left_join(train_tokenized,.)
+
+#Mutate columns to set no sentiment to zero and then to neutral
+# this is to remove NAs and produce a sentiment score
+
+train_tokenized %<>% 
+  mutate(sentiment_q1 = ifelse(is.na(sentiment_q1), 0, sentiment_q1),
+         sentiment_q2 = ifelse(is.na(sentiment_q2), 0, sentiment_q2)) %>%
+  mutate(overall_sentiment_q1 = ifelse(sentiment_q1 == 0, "neutral", overall_sentiment_q1),
+         overall_sentiment_q2 = ifelse(sentiment_q2 == 0, "neutral", overall_sentiment_q2))
+
+# derive cobined sentiment
+#this is speratd out for explination purposes as could go above
+#absolutes used just to show gaps and remove negativ and positive numbers
+train_tokenized %<>%
+  mutate(same_sentiment = ifelse(overall_sentiment_q1 == overall_sentiment_q2, 1,0),
+         sentiment_difference = abs(sentiment_q1 - sentiment_q2))
 
 
 ## Testing code -----------------
