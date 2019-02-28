@@ -6,6 +6,9 @@ library(magrittr)
 train_tokenized<- read.csv("./data/train_tokenized.csv", header = TRUE,
                            stringsAsFactors = FALSE)
 
+test_tokenized<- read.csv("./data/test.csv", header = TRUE,
+                          stringsAsFactors = FALSE)
+
 #look at data which has been tokenized
 head(train_tokenized)
 
@@ -23,11 +26,8 @@ train_tokenized_2 <- train_tokenized %>% unnest_tokens(words_2, question2)
 
 #get sentiments
 
-train_tokenized_1  %<>% inner_join(get_sentiments("bing"),
-                                   by = c("words_1" = "word"))
-
 #note some of the question numbers appear in both columns
-#for overall sentiment use Bing algorithm although less words cover
+#for overall sentiment use Bing algorithm although less words covered
 tokenized_sentiment1 <- train_tokenized_1  %>% inner_join(get_sentiments("bing"),
                                            by = c("words_1" = "word")) %>%
   count(X, sentiment) %>%
@@ -80,6 +80,27 @@ train_tokenized %<>%
 train_tokenized %>% select(same_sentiment, sentiment_difference) %>%
   write.csv(., "./features_train/sentiment_feature_selection.csv",
             row.names = FALSE)
+
+#check if sentiment differences is as expected
+round(prop.table(table(train_tokenized$same_sentiment, 
+      train_tokenized$sentiment_difference),1)*100,2)
+
+
+## create feature for test ---
+
+#filter to the n umber needed for submission 
+test_tokenized<- test_tokenized[0:2345796,]
+
+
+
+test_tokenized_1 <- test_tokenized %>% 
+  # mutate(id = row_number()) %>%
+  unnest_tokens(words_1, question1) 
+
+test_tokenized_2 <- test_tokenized %>% unnest_tokens(words_2, question2)
+
+
+
 
 
 ## Testing code -----------------
