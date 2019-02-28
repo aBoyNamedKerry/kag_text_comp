@@ -5,16 +5,12 @@ Created on Thu Feb 28 09:39:33 2019
 @author: User
 """
 
-import nltk
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import cross_val_score
-from sklearn import tree
-import glob, os
-import pickle
-import math
-import Counter
+import numpy as np
 import jellyfish
+import re, math
+from collections import Counter
+
 
 def feature_word_overlap(df, directory):
     df_return = pd.DataFrame()

@@ -77,10 +77,10 @@ if build_model:
     #print(X)
     #print(y)
     
-    clf = tree.DecisionTreeClassifier(max_depth = 4)
-    #clf = RandomForestClassifier(n_estimators=3, max_depth=5)
+    #clf = tree.DecisionTreeClassifier(max_depth = 4)
+    clf = RandomForestClassifier(n_estimators=50, max_depth=5)
       
-    scores = cross_val_score(clf, X, y, cv=5, scoring = 'accuracy') #scoring = 'neg_log_loss'
+    scores = cross_val_score(clf, X, y, cv=5, scoring = 'neg_log_loss') #scoring = 'neg_log_loss',scoring = 'accuracy'
    
     print(scores)
        
@@ -93,13 +93,13 @@ if build_model:
     #overfitted, split into train/test!
     probs = clf.predict_proba(X)
     pred = clf.predict(X)
-    print(probs[:,1])
+    #print(probs[:,1])
     df=pd.DataFrame()
-    df['X'] = df_train_features
+    #df['X'] = df_train_features
     df['probs'] = probs[:,1]
     df['pred'] = pred
     df['actual'] = df_train['is_duplicate']    
-    print(df[0:30])
+    #print(df[0:30])
 
     
 if build_test_features:
