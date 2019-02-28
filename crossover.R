@@ -1,7 +1,11 @@
+## Code for building crossover features and 
 
 
-data <- read.csv("P:/data.csv",header=TRUE)
+#read in data
+data <- read.csv("./data/train_tokenized.csv",header=TRUE,
+                 stringsAsFactors = FALSE)
 
+#load libraries required
 library("wordnet")
 library("dplyr")
 library("tidytext")
@@ -12,14 +16,12 @@ library("tidyr")
 data$question1 <- tolower(data$question1)
 data$question2 <- tolower(data$question2)
 
-data$question1<-as.character(data$question1)
-data$question2<-as.character(data$question2)
 
 data$question1 <- removePunctuation(data$question1)
 data$question2 <- removePunctuation(data$question2)
 
 
-Output<-as.data.frame(data$X)
+Output<-as.data.frame(data$id)
 
 #crossover calculated
 
@@ -67,8 +69,6 @@ Output$score<-apply(data_questions,1,countOfSame)
 
 data_stopwords<-data
 
-library(tm)
-
 corpus_q1<-Corpus(VectorSource(data_stopwords$question1))
 corpus_q2<-Corpus(VectorSource(data_stopwords$question2))
 
@@ -95,14 +95,15 @@ Output$Crossover_stopwords<-apply(data_questions_stopwords,1,countOfSame)
 
 #export to excel
 
-write.csv(Output,file="T:/Output.csv")
+#write.csv(Output,file="T:/Output.csv")
 
+rm(data, data_questions, data_questions_stopwords)
+gc()
 
 #Stopwords remeoved and lemmatized
 
-library(tidytext)
-
 data_lem<-data_stopwords
+rm(data_stopwords) ; gc()
 
 lem_q1<-as.vector(data_lem$question1)
 lem_q2<-as.vector(data_lem$question2)
@@ -115,3 +116,11 @@ Output$Crossover_stopwords<-apply(data_lem,1,countOfSame)
 
 
 Output$Crossover_stopwords<-countOfSame_2(data_stopwords)
+
+
+##test the lemmatization
+
+lem_q1_test <- lem_q1[1:10000]
+
+lem_sting_test<- lemmatize_strings(lem_q1_test)
+
