@@ -16,7 +16,7 @@ from features import *
 
 tokenize_train = False
 tokenize_test = False
-build_train_features = False
+build_train_features = True
 build_model = True
 build_test_features = False
 execute_model = False
@@ -64,7 +64,7 @@ if build_train_features:
         # read from csv already tokenized
         df_train = pd.read_csv('data/train_tokenized.csv', encoding = "ISO-8859-1")
 
-    #df_train = df_train[0:100]
+    df_train = df_train[0:100]
     create_features(df_train, 'features_train')
 
 if build_model:

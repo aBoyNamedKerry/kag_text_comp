@@ -30,7 +30,7 @@ def feature_number_of_words(df, directory):
 
 def feature_average_token_length(df, directory):
     df_return = pd.DataFrame()
-    df_return['diff_num_words'] = df.apply(lambda x: np.mean([len(word) for word in x['q1_tokens']]) - np.mean([len(word) for word in x['q2_tokens']]), axis=1)
+    df_return['token_length'] = df.apply(lambda x: np.mean([len(word) for word in x['q1_tokens']]) - np.mean([len(word) for word in x['q2_tokens']]), axis=1)
     df_return.to_csv(directory +'/feature_average_token_length.csv', index=False)
 
 def feature_levenshtein_distance(df, directory):
