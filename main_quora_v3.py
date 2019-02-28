@@ -16,7 +16,7 @@ from features import *
 
 tokenize_train = False
 tokenize_test = False
-build_train_features = True
+build_train_features = False
 build_model = True
 build_test_features = False
 execute_model = False
@@ -64,7 +64,7 @@ if build_train_features:
         # read from csv already tokenized
         df_train = pd.read_csv('data/train_tokenized.csv', encoding = "ISO-8859-1")
 
-    df_train = df_train[0:100]
+    #df_train = df_train[0:100]
     create_features(df_train, 'features_train')
 
 if build_model:
@@ -78,13 +78,24 @@ if build_model:
     #print(y)
     
     #clf = tree.DecisionTreeClassifier(max_depth = 4)
-    clf = RandomForestClassifier(n_estimators=50, max_depth=5)
+    clf = RandomForestClassifier(n_estimators=50, min_samples_leaf=100)
       
-    scores = cross_val_score(clf, X, y, cv=5, scoring = 'neg_log_loss') #scoring = 'neg_log_loss',scoring = 'accuracy'
+    scores = cross_val_score(clf, X, y, cv=4, scoring = 'neg_log_loss') #scoring = 'neg_log_loss',scoring = 'accuracy'
    
     print(scores)
        
     clf.fit(X,y)
+    
+    importances = clf.feature_importances_
+    std = np.std([tree.feature_importances_ for tree in clf.estimators_],
+             axis=0)
+    indices = np.argsort(importances)[::-1]
+
+    # Print the feature ranking
+    print("Feature ranking:")
+
+    for f in range(X.shape[1]):
+        print("%d. feature %d (%f)" % (f + 1, indices[f], importances[indices[f]]))
     
     # save the model to disk
     modelfilename = 'finalized_model.pkl'
