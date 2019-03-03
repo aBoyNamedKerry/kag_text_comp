@@ -86,6 +86,25 @@ round(prop.table(table(train_tokenized$same_sentiment,
       train_tokenized$sentiment_difference),1)*100,2)
 
 
+##create plot r 
+library(scales)
+
+train_tokenized_sub <- train_tokenized %>% select(id, same_sentiment,
+                                                  sentiment_difference) %>%
+  mutate(same_sentiment = ifelse(same_sentiment == 1, "Yes", "No")) %>%
+
+ggplot(data = ., aes(x = sentiment_difference,
+                                    fill = same_sentiment)) +
+  geom_bar(stat = "count", position = "dodge")+
+  #scale_y_continuous(trans = 'log10', labels = comma(breaks))+
+  scale_y_log10(label = comma)+
+  scale_x_continuous(breaks = c(0:10))+
+  #expand_limits(x =0)+
+  labs(title = "Sentiment difference and gap between questions",
+       y = "Count (log 10)", x = "Total gap between sentiment")+
+  theme_bw()
+
+
 ## create feature for test ==============================
 
 #filter to the n umber needed for submission 
